@@ -38,7 +38,7 @@ Stage: build
     python3 test.py
     python3 test_gp.py
 
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/* /root/.cache/* /var/cache/* /usr/share/doc/*
 
     # Clean up locale definitions that may leak from host
     unset LANGUAGE
