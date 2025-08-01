@@ -1,0 +1,58 @@
+BootStrap: docker
+From: ubuntu:20.04
+Stage: build
+
+%environment
+    export DEBIAN_FRONTEND=noninteractive
+    export PATH=/usr/local/bin:$PATH
+    export PYTHONPATH=/root/GP-GOMEA/pythonpkg:$PYTHONPATH
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Basic setup
+    apt-get update && apt-get upgrade -y && apt-get clean
+    apt-get install -y curl python3-dev python3-distutils python3-pip parallel git
+
+    python3 -m pip install setuptools==45.2.0 numpy==1.24.4 pandas==2.0.3 matplotlib==3.7.5 seaborn==0.13.2 scikit-learn==1.3.2 statsmodels==0.14.1 sympy==1.13.3 scipy==1.10.1 pytexit==0.4.0 PyYAML==6.0.2 fastplot
+
+    apt-get -y install g++ pkg-config libarmadillo-dev make build-essential autotools-dev libicu-dev libbz2-dev wget libboost-all-dev cmake ninja-build ccache
+
+    # === Clone and build GP-GOMEA ===
+    cd /root
+    git clone https://github.com/lurovi/GP-GOMEA.git
+    cd GP-GOMEA
+    export GEN=ninja
+    make
+
+    # === Clone second repo ===
+    cd /root
+    git clone https://github.com/lurovi/genetic-programming-sr.git
+    cd GP-GOMEA
+    python3 test.py
+    python3 test_gp.py
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+%startscript
+    echo "Container started."
+
+%runscript
+    echo "Container was created."
+
+%test
+    # Check Ubuntu version
+    grep -q '20.04' /etc/os-release && echo "Ubuntu 20.04 detected." || (echo "Unexpected OS" && exit 1)
+
+    # Check compiler version
+    gcc --version
+
+    # Check if pyGPGOMEA is importable
+    python3 -c "import pyGPGOMEA" && echo "pyGPGOMEA import OK" || (echo "Import failed" && exit 1)
+
+%labels
+    Author luigirovito2@gmail.com
+    Version v0.1.0
+
+%help
+    Apptainer container for GP-GOMEA and genetic-programming-sr without Conda.
+
