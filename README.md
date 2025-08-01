@@ -2,9 +2,9 @@
 
 Repository for executing PySR-based tree-GP-like optimization on some benchmark datasets, plus several standard sklear-based ML models.
 
-# Apptainer Container for GP-GOMEA and genetic-programming-sr
+# Apptainer Container for GP-GOMEA and gp-sr-ablation
 
-This repository provides a fully self-contained [Apptainer](https://apptainer.org) container for running [GP-GOMEA](https://github.com/lurovi/GP-GOMEA) and [genetic-programming-sr](https://github.com/lurovi/genetic-programming-sr) without Conda. It uses a minimal Ubuntu 20.04 base with specific compiler and Python library versions installed via `apt` and `pip`.
+This repository provides a fully self-contained [Apptainer](https://apptainer.org) container for running [GP-GOMEA](https://github.com/lurovi/GP-GOMEA) and [gp-sr-ablation](https://github.com/lurovi/gp-sr-ablation) without Conda. It uses a minimal Ubuntu 20.04 base with specific compiler and Python library versions installed via `apt` and `pip`.
 
 ## 🔧 Container Features
 
@@ -19,7 +19,7 @@ This repository provides a fully self-contained [Apptainer](https://apptainer.or
 - ✅ Automatic build and installation of `pyGPGOMEA` (Python bindings)
 - ✅ Clones and includes both:
   - `GP-GOMEA`
-  - `genetic-programming-sr`
+  - `gp-sr-ablation`
 - ✅ Built without Conda for maximum portability
 
 ---
