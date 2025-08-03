@@ -1,6 +1,7 @@
 #from pysr import PySRRegressor
 from pyGPGOMEA import GPGOMEARegressor as GPG
 import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
