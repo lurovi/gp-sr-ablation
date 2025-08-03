@@ -18,14 +18,43 @@ from data_loader import split_data
 from utils import compute_linear_scaling
 
 
+class CastFloatScaler(BaseEstimator, TransformerMixin):
+    def __init__(self, scaler):
+        self.scaler = scaler
+
+    def fit(self, X, y=None):
+        self.scaler.fit(X, y)
+        return self
+
+    def transform(self, X):
+        X_scaled = self.scaler.transform(X)
+        return np.asarray(X_scaled, dtype=np.float64)
+
+    def get_params(self, deep=True):
+        out = super().get_params(deep=deep)
+        out.update({
+            'scaler': self.scaler,
+        })
+        return out
+
+    def set_params(self, **params):
+        super().set_params(**params)
+
+        for key in ['scaler']:
+            if key in params:
+                setattr(self, key, params[key])
+
+        return self
+
+
 class NumpyPassthroughScaler(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        if isinstance(X, np.ndarray):
-            return X
-        return X.to_numpy()
+        if isinstance(X, pd.DataFrame):
+            return X.to_numpy(dtype=np.float64)
+        return np.asarray(X, dtype=np.float64)
 
 
 class LinearScalingRegressor(BaseEstimator, RegressorMixin):
@@ -179,6 +208,8 @@ def preprocess_and_train(df, scaling_strategy, model_name, test_size, seed, func
         scaler = NumpyPassthroughScaler()
     else:
         raise ValueError("Invalid scaling strategy. Choose 'standard', 'minmax', 'robust', or 'none'.")
+
+    scaler = CastFloatScaler(scaler)
 
     # Model selection
     models = {
