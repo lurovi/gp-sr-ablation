@@ -393,18 +393,18 @@ def preprocess_and_train(df, scaling_strategy, model_name, test_size, seed, func
                                         verbose=verbose)
             search.fit(X_train, y_train)
             estimator = search.best_estimator_
-        except ValueError:
+        except (AttributeError, ValueError) as e:
             try:
                 search = RandomizedSearchCV(linear_scaling_regressor, grid, n_iter=20, cv=2, n_jobs=1,
                                             scoring='neg_root_mean_squared_error', random_state=seed, refit=True,
                                             verbose=verbose)
                 search.fit(X_train, y_train)
                 estimator = search.best_estimator_
-            except ValueError:
+            except (AttributeError, ValueError) as e:
                 try:
                     linear_scaling_regressor.fit(X_train, y_train)
                     estimator = linear_scaling_regressor
-                except ValueError:
+                except (AttributeError, ValueError) as e:
                     train_df, _ = split_data(df, test_size=test_size, random_state=seed)
                     X_train = train_df.iloc[:, :-1]
                     y_train = train_df[target].to_numpy()
