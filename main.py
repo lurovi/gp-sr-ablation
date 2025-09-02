@@ -96,6 +96,9 @@ def main():
         # Load datasets
         df = load_data(f"datasets/{data}/data.csv")
         functions = func_set.split(',')
+        saving_estimator = False
+        saving_sr_progress = False
+        saving_gp_progress = False
 
         # Call training function
         start_time = time.time()
@@ -144,29 +147,33 @@ def main():
         result_dict = {'seed': seed, 'seed_index': seed_index,
                        'functions': functions,
                        'data': data, 'data_bench': data.split('_')[0], 'run_id': run_id,
-                       'execution_time_in_minutes': execution_time_in_minutes}
+                       'execution_time_in_minutes': execution_time_in_minutes, 'slope': estimator.slope_, 'intercept': estimator.intercept_}
 
         for k in metrics:
             train_score, test_score = score_dict[k]['train_score'], score_dict[k]['test_score']
 
             result_dict[k] = {'train_score': train_score, 'test_score': test_score}
 
-        with open(os.path.join(final_path, f'result{seed_index}.json'), 'w') as f:
-            json.dump(result_dict, f, indent=4)
+        if saving_estimator:
+            save_pkl(estimator, os.path.join(final_path, f'estimator{seed_index}.pkl'))
 
-        save_pkl(estimator, os.path.join(final_path, f'estimator{seed_index}.pkl'))
-
-        if model == 'symbolic_regression':
+        if model == 'symbolic_regression' and saving_sr_progress:
             sr_model = estimator.pipeline['regressor']
             equations = sr_model.equations
             equations.to_csv(os.path.join(final_path, f'equations{seed_index}.tsv'), sep='\t', index=False)
 
         if model == 'genetic_programming':
             gp_model = estimator.pipeline['regressor']
-            gp_dict_gen = {'model': gp_model.get_model(), 'n_nodes': gp_model.get_n_nodes(),
-                           'n_evals': gp_model.get_evaluations(), 'progress': gp_model.get_progress_log()}
-            with open(os.path.join(final_path, f'equations{seed_index}.json'), 'w') as f:
-                json.dump(gp_dict_gen, f, indent=4)
+            gp_dict_gen = {'model': gp_model.get_model(), 'n_nodes': gp_model.get_n_nodes(), 'n_evals': gp_model.get_evaluations()}
+            for gp_dict_gen_key in gp_dict_gen:
+                result_dict[gp_dict_gen_key] = gp_dict_gen[gp_dict_gen_key]
+            if saving_gp_progress:
+                gp_progress_log = gp_model.get_progress_log()
+                with open(os.path.join(final_path, f'progress{seed_index}.txt'), 'w') as f:
+                    f.write(gp_progress_log)
+
+        with open(os.path.join(final_path, f'result{seed_index}.json'), 'w') as f:
+            json.dump(result_dict, f, indent=4)
 
         with completed_csv_lock:
             with open(os.path.join('results/', f'completed_{run_id}.txt'), 'a+') as terminal_std_out:

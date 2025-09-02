@@ -1,0 +1,1 @@
+These scripts directly interact with the file system to clean and/or merge some results files of this project to save space and compact the results. To use a given script, it must be copy-pasted in the main gp-sr-ablation directory and the target directory of each script is set by default to "results/", which is traversed in a nested way to look for files. Use with caution.
